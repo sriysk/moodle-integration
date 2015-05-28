@@ -11,16 +11,20 @@ class block_playlyfe extends block_base {
   public function get_content() {
     global $CFG;
     $pl = block_playlyfe_sdk::get_pl();
-    $response = $pl->get('/admin');
-    $game = $response['game'];
     $this->content = new stdClass;
     $this->content->footer = 'Powered by Playlyfe';
-    $this->content->text = '
-      <h5>'.$game['title'].'</h5>
-      <p> Description - '.$game['description'].'<p>
-      <p> Access - '.$game['access'].'<p>
-      <p> Timezone - '.$game['timezone'].'<p>
-    ';
+    switch ($this->config->type) {
+      case 0:
+      case 1:
+        $tag = 'point';
+        if($this->config->type == 1) {
+          $tag = 'badge';
+        }
+        $metrics = $pl->get('/design/versions/latest/metrics', array('fields' => 'id,name,description,type,image', 'tags' => $tag));
+        $this->content->text = '<div id="gamification_'.$tag.'_block"></div>';
+        $this->page->requires->js_init_call('metrics', array(array('type' => $tag, 'metrics' => $metrics, 'root' => $CFG->wwwroot)));
+        break;
+    }
     return $this->content;
   }
 
@@ -29,7 +33,7 @@ class block_playlyfe extends block_base {
     $this->page->requires->jquery();
     $this->page->requires->jquery_plugin('ui');
     $this->page->requires->jquery_plugin('ui-css');
-    $this->page->requires->js('/blocks/playlyfe/main.js');
+    $this->page->requires->js('/blocks/playlyfe/block_playlyfe.js');
   }
 
   public function specialization() {
