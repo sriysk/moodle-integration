@@ -29,7 +29,6 @@ class block_playlyfe extends block_base {
     $this->page->requires->jquery();
     $this->page->requires->jquery_plugin('ui');
     $this->page->requires->jquery_plugin('ui-css');
-    $this->page->requires->js('/blocks/playlyfe/main.js');
   }
 
   public function specialization() {
