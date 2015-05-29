@@ -109,7 +109,7 @@ MetricList.prototype.add = function(metric) {
   $('#'+metric.id+'_delete').click(function(){ self.remove(metric); });
 }
 
-// Updates a metric by making an patch request
+// Updates a metric by making a patch request
 MetricList.prototype.update = function(metric) {
   var new_name = prompt("Enter the new name", metric.name);
   if (new_name !== null && new_name !== '' && new_name.length > 2 && new_name !== metric.name) {
@@ -123,7 +123,7 @@ MetricList.prototype.update = function(metric) {
   }
 }
 
-// Removes a metric by making an delete request and removes it from the list
+// Removes a metric by making a delete request and removes it from the list
 MetricList.prototype.remove = function(metric) {
   var result = confirm("Do you really want to delete "+metric.name + '?');
   if(result) {

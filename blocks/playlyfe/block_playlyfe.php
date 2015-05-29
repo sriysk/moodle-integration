@@ -1,7 +1,5 @@
 <?php
 
-require_once('classes/block_playlyfe_sdk.php');
-
 class block_playlyfe extends block_base {
 
   public function init() {
