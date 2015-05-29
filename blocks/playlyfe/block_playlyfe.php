@@ -22,7 +22,7 @@ class block_playlyfe extends block_base {
         }
         $metrics = $pl->get('/design/versions/latest/metrics', array('fields' => 'id,name,description,type,image', 'tags' => $tag));
         $this->content->text = '<div id="gamification_'.$tag.'_block"></div>';
-        $this->page->requires->js_init_call('metrics', array(array('type' => $tag, 'metrics' => $metrics, 'root' => $CFG->wwwroot)));
+        $this->page->requires->js_init_call('create_metric_list', array(array('type' => $tag, 'metrics' => $metrics, 'root' => $CFG->wwwroot)));
         break;
     }
     return $this->content;

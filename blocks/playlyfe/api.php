@@ -3,40 +3,12 @@ require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once('classes/block_playlyfe_sdk.php');
 require_login();
 $pl = block_playlyfe_sdk::get_pl();
+$method = $_GET['method'];
 $route = $_GET['route'];
-$image_id = $_GET['image_id'];
-$plcontext = $_GET['plcontext'];
-unset($_GET['route']);
-unset($_GET['image_id']);
-if($image_id) {
-  unset($_GET['image_id']);
-  header('Content-type: image/png');
-  echo $pl->read_image($image_id, $_GET);
-  return;
-}
 header('Content-Type: application/json');
+$data = json_decode(file_get_contents('php://input'), true);
 try {
-  $data = json_decode(file_get_contents('php://input'), true);
-  switch($plcontext) {
-    case 'point':
-    case 'badge':
-      $pl->post('/design/versions/latest/metrics', array(), array(
-        'id' => $data['name'],
-        'name' => $data['name'],
-        'type' => 'point',
-        'constraints' => array(
-          'default' => '0',
-          'max' => 'Infinity',
-          'min' => '0'
-        ),
-        'tags' => [$plcontext]
-      ));
-      echo json_encode(array('ok' => 1));
-      break;
-    case 'course_completed':
-      break;
-  }
-  $pl->post('/design/versions/latest/deploy');
+  echo json_encode($pl->api($method, $route, array(), $data));
 }
 catch(Exception $e) {
   http_response_code(400);
