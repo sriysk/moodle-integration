@@ -16,7 +16,19 @@ function makeApi(method, route, body) {
   });
 }
 
-function MetricList(id, type, wwwroot, headers, items) {
+// Creates a metric list in the block
+function create_metric_list(version, data) {
+  var metricList = new MetricList('gamification_'+data.type+'_block', data.type, data.root, data.metrics);
+}
+
+/*
+  Creates a new MetricList Object
+  @param id string the div on which this component will be mounted to
+  @param type string what this block will display whether `point` or `badge'
+  @param root string the root location of the webserver
+  @param metrics array the list of metrics to prefill the block with
+*/
+function MetricList(id, type, wwwroot, metrics) {
   this.id = id;
   this.type = type;
   this.image = 'default-point-metric';
@@ -24,11 +36,10 @@ function MetricList(id, type, wwwroot, headers, items) {
     this.image = 'default-set-metric';
   }
   root = wwwroot;
-  this.headers = headers;
   this.$el = $('#'+id);
   this.render();
-  for(var i=0;i<items.length;i++) {
-    this.add(items[i]);
+  for(var i=0;i<metrics.length;i++) {
+    this.add(metrics[i]);
   }
   var self = this;
   this.addButton.click(function(event) {
@@ -36,6 +47,7 @@ function MetricList(id, type, wwwroot, headers, items) {
   });
 }
 
+// Renders the metric list as table with all items and also creates an add button and text
 MetricList.prototype.render = function() {
   html =
   '<table id="'+this.id+'_table" class="generaltable">' +
@@ -113,7 +125,7 @@ MetricList.prototype.update = function(metric) {
 
 // Removes a metric by making an delete request and removes it from the list
 MetricList.prototype.remove = function(metric) {
-  var result = confirm("Do you really want to delete "+metric.name);
+  var result = confirm("Do you really want to delete "+metric.name + '?');
   if(result) {
     makeApi('DELETE', '/design/versions/latest/metrics/'+metric.id)
     .done(function (data) {
@@ -121,9 +133,4 @@ MetricList.prototype.remove = function(metric) {
       alert("Metric "+metric.name+' was deleted Successfully');
     });
   }
-}
-
-// Creates a metric list in the block
-function create_metric_list(version, data) {
-  var metricList = new MetricList('gamification_'+data.type+'_block', data.type, data.root, [], data.metrics);
 }
