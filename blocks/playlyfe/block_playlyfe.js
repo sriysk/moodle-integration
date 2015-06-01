@@ -1,4 +1,8 @@
-var root= "/";
+var root= "";
+
+function init_cfg(version, data) {
+  root = data.root;
+}
 
 function makeApi(method, route, body) {
   body =  body || {};
@@ -16,121 +20,326 @@ function makeApi(method, route, body) {
   });
 }
 
-// Creates a metric list in the block
-function create_metric_list(version, data) {
-  var metricList = new MetricList('gamification_'+data.type+'_block', data.type, data.root, data.metrics);
-}
-
 /*
-  Creates a new MetricList Object
-  @param id string the div on which this component will be mounted to
-  @param type string what this block will display whether `point` or `badge'
-  @param root string the root location of the webserver
-  @param metrics array the list of metrics to prefill the block with
+  Displays the point metric in th block
 */
-function MetricList(id, type, wwwroot, metrics) {
-  this.id = id;
-  this.type = type;
-  this.image = 'default-point-metric';
-  if(type === 'badge') {
-    this.image = 'default-set-metric';
-  }
-  root = wwwroot;
-  this.$el = $('#'+id);
-  this.render();
-  for(var i=0;i<metrics.length;i++) {
-    this.add(metrics[i]);
-  }
-  var self = this;
-  this.addButton.click(function(event) {
-    self.create();
+function init_point_block(version, point) {
+  $('#pl_point_block').html(
+    '<table class="generaltable">' +
+      '<thead>' +
+        '<tr>' +
+          '<th class="header c1 lastcol centeralign">Image</th>' +
+          '<th class="header c1 lastcol centeralign">' +
+            '<div style="position: relative;">' +
+              'Name' +
+            '</div>' +
+            '</th>' +
+        '</tr>'+
+      '</thead>' +
+      '<tbody>' +
+        '<tr>' +
+          '<td>' +
+            '<img src="' + root + '/blocks/playlyfe/image.php?image_id=default-point-metric&size=small">' +
+          '</td>' +
+          '<td style="vertical-align: middle;">' +
+            '<div style="position: relative;">' +
+              '<p id="point_name">'+point.name+'</p>' +
+              '<img style="position: absolute;right: 40px;bottom: 5px;" src="http://localhost:3000/theme/image.php/clean/core/1432795487/t/editstring" id="point_edit">' +
+            '</div>' +
+            '</td>' +
+        '</tr>'+
+      '</tbody>' +
+    '</table>'
+  );
+  $('#point_edit').click(function(event) {
+    var name = prompt('Enter the Point Name', point.name);
+    if(name === null) {
+      return;
+    }
+    if (name !== '' && name.length > 2) {
+      makeApi('PATCH','/design/versions/latest/metrics/point', {
+        type: 'point',
+        name: name
+      })
+      .done(function() {
+        $('#point_name').text(name);
+      });
+    }
+    else {
+      alert('Please Enter a Proper Name for the Point Metric');
+    }
   });
 }
 
+/*
+  Creates a badge list in the block
+*/
+function init_badge_list(version, badges) {
+  var badgeList = new BadgeList();
+  badgeList.render();
+  for(var i=0;i<badges.length;i++) {
+    badgeList.add(badges[i]);
+  }
+}
+
+/*
+  Creates a new BadgeList Object
+*/
+function BadgeList() {
+  this.id = 'pl_badge_block';
+  this.image = 'default-set-metric';
+  this.$el = $('#pl_badge_block');
+}
+
 // Renders the metric list as table with all items and also creates an add button and text
-MetricList.prototype.render = function() {
+BadgeList.prototype.render = function() {
   html =
   '<table id="'+this.id+'_table" class="generaltable">' +
     '<thead>' +
       '<tr>' +
-        '<th class="header c1 lastcol centeralign" style="" scope="col">Image</th>' +
-        '<th class="header c1 lastcol centeralign" style="" scope="col">Name</th>' +
+        '<th class="header c1 lastcol centeralign">Image</th>' +
+        '<th class="header c1 lastcol centeralign">' +
+          '<div style="position: relative;">' +
+            'Name' +
+            '<img style="position: absolute;right: 40px;bottom: 5px;" src="http://localhost:3000/theme/image.php/clean/core/1432795487/t/add" id="'+this.id+'_add">' +
+          '</div>' +
+          '</th>' +
       '</tr>'+
     '</thead>' +
   '<tbody>' +
   '</tbody>' +
-  '</table>' +
-  '<input id="'+this.id+'_text" type="text" style="width: 200px;"></input>' +
-  '<button id="'+this.id+'_add">Add '+this.type+'</button>';
+  '</table>';
   this.$el.html(html);
-  this.textInput = $('#'+this.id+'_text');
-  this.addButton = $('#'+this.id+'_add');
+  var self = this;
+  $('#'+this.id+'_add').click(function(event) {
+    var name = prompt('Enter the Badge Name', "");
+    if(name === null) {
+      return;
+    }
+    if (name !== '' && name.length > 2) {
+      self.create(name);
+    }
+    else {
+      alert('Please Enter a Proper Name');
+    }
+  });
 }
 
-// Create's a new metric by making an post request and then adds it to this list
-MetricList.prototype.create = function(name) {
-  var name = this.textInput.val();
-  this.textInput.val('');
+// Create's a new badge by making an post request and then adds it to this list
+BadgeList.prototype.create = function(name) {
   var self = this;
   makeApi('POST', '/design/versions/latest/metrics', {
     id: name,
     name: name,
     type: 'point',
-    'constraints': {
+    constraints: {
       'default': '0',
       'max': 'Infinity',
       'min': '0'
     },
-    'tags': [this.type]
+    'tags': ['badge']
   })
   .done(function (data) {
     self.add(data);
   });
 }
 
-// This will add a metric to this list
-MetricList.prototype.add = function(metric) {
+// This will add a badge to this list
+BadgeList.prototype.add = function(badge) {
   var self = this;
   this.$el.find('#'+this.id+'_table tbody').append(
-    '<tr id="'+metric.id+'_row">' +
+    '<tr id="'+badge.id+'_row">' +
       '<td>' +
         '<img src="' + root + '/blocks/playlyfe/image.php?image_id='+ this.image + '&size=small">' +
       '</td>' +
       '<td style="vertical-align: middle;">' +
-        '<div id="'+metric.id+'_name" style="position: relative;">'+
-          metric.name +
-          '<img style="position: absolute;right: 40px;" src="http://localhost:3000/theme/image.php/clean/core/1432795487/t/editstring" id="'+metric.id+'_edit">' +
-          '<img style="position: absolute;right: 0px;" src="http://localhost:3000/theme/image.php/clean/core/1432795487/t/delete" id="'+metric.id+'_delete">' +
+        '<div id="'+badge.id+'_name" style="position: relative;">'+
+          badge.name +
+          '<img style="position: absolute;right: 40px;" src="http://localhost:3000/theme/image.php/clean/core/1432795487/t/editstring" id="'+badge.id+'_edit">' +
+          '<img style="position: absolute;right: 0px;" src="http://localhost:3000/theme/image.php/clean/core/1432795487/t/delete" id="'+badge.id+'_delete">' +
         '</div>' +
       '</td>' +
     '</tr>'
   );
-  $('#'+metric.id+'_edit').click(function(){ self.update(metric); });
-  $('#'+metric.id+'_delete').click(function(){ self.remove(metric); });
+  $('#'+badge.id+'_edit').click(function(){ self.update(badge); });
+  $('#'+badge.id+'_delete').click(function(){ self.remove(badge); });
 }
 
-// Updates a metric by making a patch request
-MetricList.prototype.update = function(metric) {
-  var new_name = prompt("Enter the new name", metric.name);
-  if (new_name !== null && new_name !== '' && new_name.length > 2 && new_name !== metric.name) {
-    makeApi('PATCH','/design/versions/latest/metrics/'+metric.id, {
+// Updates a badge by making a patch request
+BadgeList.prototype.update = function(badge) {
+  var new_name = prompt("Enter the new name", badge.name);
+  if (new_name !== null && new_name !== '' && new_name.length > 2 && new_name !== badge.name) {
+    makeApi('PATCH','/design/versions/latest/metrics/'+badge.id, {
       type: 'point',
       name: new_name
     })
     .done(function() {
-      $('#'+metric.id+'_name').text(new_name);
+      $('#'+badge.id+'_name').text(new_name);
     });
   }
 }
 
-// Removes a metric by making a delete request and removes it from the list
-MetricList.prototype.remove = function(metric) {
-  var result = confirm("Do you really want to delete "+metric.name + '?');
+// Removes a badge by making a delete request and removes it from the list
+BadgeList.prototype.remove = function(badge) {
+  var result = confirm("Do you really want to delete "+badge.name + '?');
   if(result) {
-    makeApi('DELETE', '/design/versions/latest/metrics/'+metric.id)
+    makeApi('DELETE', '/design/versions/latest/metrics/'+badge.id)
     .done(function (data) {
-      $('#'+metric.id+'_row').remove();
-      alert("Metric "+metric.name+' was deleted Successfully');
+      $('#'+badge.id+'_row').remove();
+      alert("Metric "+badge.name+' was deleted Successfully');
     });
   }
+}
+
+/*
+  Creates a new LevelList Object
+*/
+function init_level_list(version, data) {
+  var levelList = new LevelList(data);
+  levelList.render();
+  for(var i=0;i<data.rule.levels.length;i++) {
+    levelList.add(data.rule.levels[i].rank, data.rule.levels[i].threshold);
+  }
+}
+
+/*
+  Creates a new LevelList Object
+*/
+function LevelList(data) {
+  this.id = 'pl_level_block';
+  this.image = 'default-state-metric';
+  this.$el = $('#pl_level_block');
+  this.levels = [];
+  this.rule = data.rule;
+  this.base = data.base.name;
+  this.stack = [];
+}
+
+// Renders the metric list as table with all items and also creates an add button and text
+LevelList.prototype.render = function() {
+  html =
+  '<table id="'+this.id+'_table" class="generaltable">' +
+    '<thead>' +
+      '<tr>' +
+        '<th class="header c1 lastcol centeralign" style="" scope="col">Image</th>' +
+        '<th class="header c1 lastcol centeralign" style="" scope="col">Name</th>' +
+        '<th class="header c1 lastcol centeralign" style="" scope="col">To</th>' +
+      '</tr>'+
+    '</thead>' +
+  '<tbody>' +
+  '</tbody>' +
+  '</table>' +
+  '<label for="level_name">Attain Level : </label><input id="level_name" type="text"></input>' +
+  '<label for="level_to">When '+this.base+' is within : </label>' +
+  'Max: <input id="level_to" type="number" value="0" style="width: 50px;">' +
+  '<button id="add_level">Add Level</button>';
+  this.$el.html(html);
+  var self = this;
+  $('#add_level').click(function(event) {
+    var name = $('#level_name').val();
+    $('#level_name').val('');
+    var to = $('#level_to').val();
+    if(name) {
+      if (name !== '' && name.length > 2) {
+        self.create(name, to);
+      }
+      else {
+        alert('Please Enter a Proper Name');
+      }
+    }
+  });
+}
+
+LevelList.prototype.add = function(name, value) {
+  this.levels.push(name);
+  var self = this;
+  this.$el.find('#'+this.id+'_table tbody').append(
+    '<tr id="'+name+'_row">' +
+      '<td>' +
+        '<img src="' + root + '/blocks/playlyfe/image.php?image_id='+ this.image + '&size=small">' +
+      '</td>' +
+      '<td style="vertical-align: middle;">' +
+        name +
+      '</td>' +
+      '<td style="vertical-align: middle;">' +
+        '<div style="position: relative;">'+
+          '<p id="'+name+'_edit">' + (value || 'Infinity') + '</p>' +
+          '<img style="position: absolute;right: 0px;bottom: 5px;" src="http://localhost:3000/theme/image.php/clean/core/1432795487/t/delete" id="'+name+'_delete">' +
+        '</div>' +
+      '</td>' +
+    '</tr>'
+  );
+  $('#'+name+'_delete').click(function(){
+    if(self.levels.length <= 2) {
+      alert('You need to have atleast minimum 2 levels');
+      return;
+    }
+    var result = confirm("Do you really want to delete  the Level `"+ name + '`?');
+    if(result) {
+      self.levels.splice(self.levels.indexOf(name), 1);
+      new_states = [];
+      for(var i=0;i<self.levels.length;i++) {
+        new_states.push({name: self.levels[i], image: 'default-state-metric' });
+      }
+      for(var i=0;i<self.rule.levels.length;i++) {
+        level = self.rule.levels[i];
+        if(name === level.rank) {
+          self.rule.levels.splice(i, 1);
+          break;
+        }
+      }
+      makeApi('PATCH', '/design/versions/latest/metrics/level', {
+        type: 'state',
+        constraints: {
+          'states': new_states
+        }
+      })
+      .done(function () {
+        makeApi('PATCH', '/design/versions/latest/rules/level', {
+          type: 'level',
+          levels: self.rule.levels
+        })
+        .done(function () {
+          $('#'+name+'_row').remove();
+        });
+      });
+    }
+  });
+}
+
+LevelList.prototype.create = function(name, value) {
+  if(this.levels.indexOf(name) > -1) { // Don't create levels with same name
+    alert('You have already defined a level with this name');
+    return;
+  }
+  var prev_value = parseInt(this.rule.levels[this.rule.levels.length-2].threshold); // Don't create levels with lower score than previous one
+  if(prev_value > value) {
+    alert('You need to pass a higher value than the 2nd last level');
+    return;
+  }
+  var self = this;
+  var new_states = [ {name: name, image: 'default-state-metric' } ];
+  for(var i=0;i<this.levels.length;i++) {
+    new_states.push({name: this.levels[i], image: 'default-state-metric' });
+  }
+  var last = this.rule.levels.pop();
+  last.threshold = value;
+  this.rule.levels.push(last);
+  this.rule.levels.push({rank: name });
+  makeApi('PATCH', '/design/versions/latest/metrics/level', {
+    type: 'state',
+    constraints: {
+      'states': new_states
+    }
+  })
+  .done(function () {
+    makeApi('PATCH', '/design/versions/latest/rules/level', {
+      type: 'level',
+      levels: self.rule.levels
+    })
+    .done(function () {
+      $('#'+last.rank+'_edit').text(''+value);
+      self.add(name, null)
+    });
+  });
 }
