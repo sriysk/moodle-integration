@@ -7,6 +7,7 @@ class block_playlyfe extends block_base {
   }
 
   public function get_content() {
+    global $USER;
     $pl = block_playlyfe_sdk::get_pl();
     $this->content = new stdClass;
     $this->content->footer = 'Powered by Playlyfe';
@@ -93,8 +94,14 @@ class block_playlyfe extends block_base {
             $this->title = 'Logged Out Rule';
             break;
           case 2:
-            $rule_id = "course_completed";
+            // Find context if not course then display this block must be shown only on course page
+            $currentcontext = $this->page->context->get_course_context(false);
+            if(empty($currentcontext)) {
+              $this->content->text = 'This block must be present on a course page';
+              return;
+            }
             $this->title = 'Course Completed Rule';
+            $rule_id = "course_completed_".$this->page->course->id;
             break;
         }
         $point = $pl->get('/design/versions/latest/metrics/point');
@@ -143,6 +150,38 @@ class block_playlyfe extends block_base {
         $this->content->text = '<div id="pl_'.$rule_id.'_block"></div>';
         $this->page->requires->js_init_call('init_rule_list', array(array('rule' => $rule, 'point' => $point, 'badges' => $badges)));
         break;
+      case 4:
+        $profile = $pl->get('/runtime/player', array( 'player_id' => ''.$USER->id));
+        $html = '<h5>'.$profile['alias'].'</h5>';
+        $html .= '<b>Scores</b>';
+        $html .= '<table class="generaltable">';
+        $html .= '<thead>';
+        $html .= '<tr>';
+        $html .= '<th class="header c1 lastcol centeralign" style="" scope="col">Point</th>';
+        $html .= '<th class="header c1 lastcol centeralign" style="" scope="col">Score</th>';
+        $html .= '</tr>';
+        $html .= '</thead>';
+        $html .= '<tbody>';
+        foreach($profile['scores'] as $score) {
+          if ($score['metric']['type'] === 'point') {
+            $html .= '<tr>';
+            $html .= '<td>'. $score['metric']['name'] . '</td><td>' . $score['value'] . '</td>';
+            $html .= '</tr>';
+          }
+        }
+        $html .= '</tbody>';
+        $html .= '</table>';
+        $html .= '<b>Teams</b>';
+        $html .= '<table class="generaltable">';
+        $html .= '<thead>';
+        $html .= '<tr>';
+        $html .= '</tr>';
+        $html .= '</thead>';
+        $html .= '<tbody>';
+        $html .= '<tr><td>You are not part of any teams right now</td></tr>';
+        $html .= '</tbody>';
+        $html .= '</table>';
+        $this->content->text = $html;
     }
     return $this->content;
   }

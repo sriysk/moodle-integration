@@ -10,7 +10,6 @@ class block_playlyfe_observer {
 
   public static function log_in(\core\event\user_loggedin $event) {
     self::execute_rule('log_in', $event->userid);
-  public static function log_in(\core\event\user_created $event) {
   }
 
   public static function log_out(\core\event\user_loggedout $event) {

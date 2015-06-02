@@ -431,6 +431,7 @@ RuleList.prototype.add = function(id, value) {
   });
 }
 
+// adds a reward to rewards list
 RuleList.prototype.addReward = function(id, value) {
   for(var i=0;i<this.rewards.length;i++) { // If its already there update it
     if (this.rewards[i].metric.id === id) {
@@ -449,6 +450,7 @@ RuleList.prototype.addReward = function(id, value) {
   $('#'+this.id+'_select option[value="'+id+'"]').remove(); // remove metric from list
 }
 
+// removes a reward to rewards list
 RuleList.prototype.removeReward = function(id) {
   for(var i=0;i<this.rewards.length;i++) {
     if (this.rewards[i].metric.id === id) {
