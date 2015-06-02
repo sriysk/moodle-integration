@@ -103,7 +103,7 @@ BadgeList.prototype.render = function() {
             'Name' +
             '<img style="position: absolute;right: 40px;bottom: 5px;" src="http://localhost:3000/theme/image.php/clean/core/1432795487/t/add" id="'+this.id+'_add">' +
           '</div>' +
-          '</th>' +
+        '</th>' +
       '</tr>'+
     '</thead>' +
   '<tbody>' +
@@ -202,9 +202,6 @@ function init_level_list(version, data) {
   }
 }
 
-/*
-  Creates a new LevelList Object
-*/
 function LevelList(data) {
   this.id = 'pl_level_block';
   this.image = 'default-state-metric';
@@ -341,5 +338,142 @@ LevelList.prototype.create = function(name, value) {
       $('#'+last.rank+'_edit').text(''+value);
       self.add(name, null)
     });
+  });
+}
+
+/*
+  Creates a new RuleList Object
+*/
+function init_rule_list(version, data) {
+  var ruleList = new RuleList(data.rule, data.point, data.badges);
+}
+
+function RuleList(rule, point, badges) {
+  this.id = 'pl_'+rule.id+'_block';
+  this.$el = $('#'+this.id);
+  this.rule = rule;
+  this.rewards = [];
+  this.point = point;
+  this.point.value = '0';
+  this.badges = badges;
+  this.count = 0;
+  this.render();
+  for(var i=0;i<rule.rules[0].rewards.length;i++) {
+    var reward = rule.rules[0].rewards[i];
+    if(reward.metric.id === this.point.id) {
+      $('#'+this.id+'_point_value').val(reward.value);
+      continue;
+    }
+    this.add(reward.metric.id, reward.value);
+  }
+}
+
+RuleList.prototype.render = function() {
+  html =
+  '<div>' +
+    '<p>How many '+this.point.name+' Points would you like to reward?</p>' +
+    '<input id="'+this.id+'_point_value" type="number" value="0"></input>' +
+  '</div>' +
+  '<div>' +
+    '<p>What Badges would you like to reward?</p>' +
+  '</div>' +
+  '<table id="'+this.id+'_table" class="generaltable">' +
+    '<thead>' +
+      '<tr>' +
+        '<th class="header c1 lastcol centeralign" style="" scope="col">Metric</th>' +
+        '<th class="header c1 lastcol centeralign" style="" scope="col">Value</th>' +
+      '</tr>'+
+    '</thead>' +
+  '<tbody>' +
+  '</tbody>' +
+  '</table>';
+  html += '<select id="'+this.id+'_select">';
+  for(var i=0;i<this.badges.length;i++) {
+    var metric = this.badges[i];
+    html += '<option class="text-left" value="'+metric.id+'">'+metric.name+'</option>';
+  }
+  html += '</select><input style="width:60px;" id="'+this.id+'_value" type="number" value="1"></input><button id="'+this.id+'_add">Add</button><button id="'+this.id+'_save">Save</button>';
+  this.$el.html(html);
+  var self = this;
+  $('#'+self.id+'_add').click(function() {
+    var metric = $('#'+self.id+'_select').val();
+    var value = $('#'+self.id+'_value').val();
+    if(metric) {
+      self.add(metric, value);
+    }
+  });
+  $('#'+this.id+'_save').click(function() {
+    self.save(self);
+  });
+}
+
+RuleList.prototype.add = function(id, value) {
+  this.count++;
+  var tag_id = this.id+'_'+this.count;
+  this.$el.find('#'+this.id+'_table tbody').append(
+    '<tr id="'+tag_id+'_row">' +
+      '<td>' +
+        id +
+      '</td>' +
+      '<td style="vertical-align: middle;">' +
+        '<div style="position: relative;">'+
+          value +
+          '<img style="position: absolute;right: 0px;bottom: 5px;" src="http://localhost:3000/theme/image.php/clean/core/1432795487/t/delete" id="'+tag_id+'_delete">' +
+        '</div>' +
+      '</td>' +
+    '</tr>'
+  );
+  this.addReward(id, value);
+  var self = this;
+  $('#'+tag_id+'_delete').click(function(){
+    $('#'+tag_id+'_row').remove();
+    self.removeReward(id);
+  });
+}
+
+RuleList.prototype.addReward = function(id, value) {
+  for(var i=0;i<this.rewards.length;i++) { // If its already there update it
+    if (this.rewards[i].metric.id === id) {
+      this.rewards[i].value = value;
+      return;
+    }
+  }
+  this.rewards.push({ // otherwise push it
+    metric: {
+      id: id,
+      type: 'point'
+    },
+    verb: 'add',
+    value: value
+  })
+  $('#'+this.id+'_select option[value="'+id+'"]').remove(); // remove metric from list
+}
+
+RuleList.prototype.removeReward = function(id) {
+  for(var i=0;i<this.rewards.length;i++) {
+    if (this.rewards[i].metric.id === id) {
+      this.rewards.splice(i, 1);
+      this.$el.find('#'+this.id+'_select')
+      .append('<option class="text-left" value="'+id+'">'+id+'</option>');
+      break;
+    }
+  }
+}
+
+// Makes an ajax request to save the rewards
+RuleList.prototype.save = function(self) {
+  var points = $('#'+self.id+'_point_value').val();
+  self.addReward(self.point.id, points);
+  makeApi('PATCH', '/design/versions/latest/rules/'+self.rule.id, {
+    type: 'custom',
+    rules: [
+      {
+        rewards: self.rewards,
+        requires: {}
+      }
+    ]
+  })
+  .done(function() {
+    alert('Saved Successfully');
   });
 }

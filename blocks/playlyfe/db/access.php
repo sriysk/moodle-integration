@@ -14,7 +14,7 @@ $capabilities = array(
   ),
   'block/playlyfe:myaddinstance' => array(
       'captype' => 'write',
-      'contextlevel' => CONTEXT_SYSTEM,
+      'contextlevel' =>  CONTEXT_BLOCK,
       'archetypes' => array(
           'user' => CAP_ALLOW
       ),

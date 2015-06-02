@@ -12,6 +12,7 @@ class block_playlyfe extends block_base {
     $this->content->footer = 'Powered by Playlyfe';
     switch ($this->config->type) {
       case 0:
+        $this->title = 'Points';
         try {
           $point = $pl->get('/design/versions/latest/metrics/point');
         }
@@ -25,7 +26,8 @@ class block_playlyfe extends block_base {
                 'default' => '0',
                 'max' => 'Infinity',
                 'min' => '0'
-              )
+              ),
+              'tags' => ['point']
             ));
           } else {
             throw $e;
@@ -35,11 +37,13 @@ class block_playlyfe extends block_base {
         $this->page->requires->js_init_call('init_point_block', array($point));
         break;
       case 1:
+        $this->title = 'Badges';
         $badges = $pl->get('/design/versions/latest/metrics', array('fields' => 'id,name,description,type,image', 'tags' => 'badge'));
         $this->content->text = '<div id="pl_badge_block"></div>';
         $this->page->requires->js_init_call('init_badge_list', array($badges));
         break;
       case 2:
+        $this->title = 'Levels';
         try {
           $base = $pl->get('/design/versions/latest/metrics/point');
           $level = $pl->get('/design/versions/latest/metrics/level');
@@ -79,7 +83,66 @@ class block_playlyfe extends block_base {
         $this->page->requires->js_init_call('init_level_list', array(array('level' => $level, 'base' => $base, 'rule' => $level_rule)));
         break;
       case 3:
-      case 4:
+        switch ($this->config->event) {
+          case 0:
+            $rule_id = "log_in";
+            $this->title = 'Logged In Rule';
+            break;
+          case 1:
+            $rule_id = "log_out";
+            $this->title = 'Logged Out Rule';
+            break;
+          case 2:
+            $rule_id = "course_completed";
+            $this->title = 'Course Completed Rule';
+            break;
+        }
+        $point = $pl->get('/design/versions/latest/metrics/point');
+        $badges = $pl->get('/design/versions/latest/metrics', array('fields' => 'id,name,description,type,image', 'tags' => 'badge'));
+        // We then fetch the rule and if it does not exist we create it
+        try {
+          $rule = $pl->get('/design/versions/latest/rules/'.$rule_id);
+        }
+        catch(Exception $e) {
+          if($e->name == 'rule_not_found') {
+            $rule = $pl->post('/design/versions/latest/rules', array(), array(
+              'id' => $rule_id,
+              'name' => $rule_id,
+              'type' => 'custom',
+              'rules' => array(
+                array(
+                  'rewards' => array(),
+                  'requires' => new StdClass
+                )
+              ),
+              'variables' => array(
+                array(
+                  'name' => 'score',
+                  'type' => 'int',
+                  'required' => false,
+                  'default' => 0
+                ),
+                array(
+                  'name' => 'time_completed',
+                  'type' => 'int',
+                  'required' => false,
+                  'default' => 0
+                ),
+                array(
+                  'name' => 'course_id',
+                  'type' => 'int',
+                  'required' => false,
+                  'default' => 0
+                )
+              )
+            ));
+          } else {
+            throw $e;
+          }
+        }
+        $this->content->text = '<div id="pl_'.$rule_id.'_block"></div>';
+        $this->page->requires->js_init_call('init_rule_list', array(array('rule' => $rule, 'point' => $point, 'badges' => $badges)));
+        break;
     }
     return $this->content;
   }
@@ -92,17 +155,6 @@ class block_playlyfe extends block_base {
     $this->page->requires->jquery_plugin('ui-css');
     $this->page->requires->js('/blocks/playlyfe/block_playlyfe.js');
     $this->page->requires->js_init_call('init_cfg', array(array('root' => $CFG->wwwroot)));
-  }
-
-  public function specialization() {
-    if (!empty($this->config->title)) {
-      $this->title = $this->config->title;
-    } else {
-      $this->config->title = 'Playlyfe';
-    }
-    if (empty($this->config->type)) {
-      $this->config->type = 0;
-    }
   }
 
   public function has_config() {

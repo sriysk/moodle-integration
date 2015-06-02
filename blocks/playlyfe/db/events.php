@@ -12,5 +12,9 @@ $observers = array(
    array(
        'eventname'   => '\core\event\user_loggedout',
        'callback'    => 'block_playlyfe_observer::log_out',
+   ),
+   array(
+       'eventname'   => 'core\event\course_completed',
+       'callback'    => 'block_playlyfe_observer::course_completed',
    )
 );
