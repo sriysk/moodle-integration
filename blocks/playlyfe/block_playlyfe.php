@@ -84,6 +84,7 @@ class block_playlyfe extends block_base {
     return $this->content;
   }
 
+  // all the required javascript for our block
   public function get_required_javascript() {
     global $CFG;
     parent::get_required_javascript();
@@ -94,22 +95,25 @@ class block_playlyfe extends block_base {
     $this->page->requires->js_init_call('init_cfg', array(array('root' => $CFG->wwwroot)));
   }
 
-  public function specialization() {
-    if (!empty($this->config->title)) {
-      $this->title = $this->config->title;
-    } else {
-      $this->config->title = 'Playlyfe';
-    }
-    if (empty($this->config->type)) {
-      $this->config->type = 0;
-    }
-  }
-
+  // Each of our block instance has some configuration parameters
   public function has_config() {
     return true;
   }
 
-  function instance_allow_multiple() {
+  // Admin can create multiple block instances
+  public function instance_allow_multiple() {
     return true;
+  }
+
+  // Allow this block to be added on any page
+  public function applicable_formats() {
+    return array(
+      'all' => true,
+      'admin' => true,
+      'site-index' => true,
+      'course-view' => true,
+      'mod' => true,
+      'my' => true
+    );
   }
 }
