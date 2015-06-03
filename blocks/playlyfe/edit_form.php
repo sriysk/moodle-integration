@@ -4,6 +4,7 @@ class block_playlyfe_edit_form extends block_edit_form {
 
   protected function specific_definition($mform) {
     global $USER;
+    // This is to prevent students from changing config
     if(!has_capability('moodle/site:config', context_user::instance($USER->id))) {
       return;
     }

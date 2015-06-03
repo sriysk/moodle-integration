@@ -479,3 +479,41 @@ RuleList.prototype.save = function(self) {
     alert('Saved Successfully');
   });
 }
+
+/*
+  Displays the user profile
+*/
+function show_profile(version, profile) {
+  $('#pl_profile_block').html(
+    '<h5>'+profile.alias+'</h5>' +
+    '<div id="pl_profile_point"></div>' +
+    '<div id="pl_profile_level"></div>' +
+    '<b>Badges</b>' +
+    '<table id="pl_profile_badges" class="generaltable">' +
+      '<tbody>' +
+      '</tbody>' +
+    '</table>'
+  );
+  var point = null;
+  for(var i=0;i < profile.scores.length; i++) {
+    var score = profile.scores[i];
+    if(score.metric.id === 'point') {
+      point = score;
+      $("#pl_profile_point").html(
+        '<img src="' + root + '/blocks/playlyfe/image.php?image_id=default-point-metric&size=small">' +
+        '<b>'+score.metric.name+' </b>' + score.value
+      );
+    } else if (score.metric.type === 'state') {
+      $("#pl_profile_level").html(
+        '<p><img src="' + root + '/blocks/playlyfe/image.php?image_id=default-state-metric&size=small">' +
+        '<b>' + score.value.name + '</b><p>' + 'You need +' + (parseInt(score.meta.high) - parseInt(point.value)) + ' ' + score.meta.base_metric.name +' points to get to ' + score.meta.next + '</p></p>'
+      );
+    } else {
+      $('#pl_profile_badges tbody').append(
+        '<tr>' +
+          '<td>' + score.metric.name + '</td><td>' + score.value + '</td>' +
+        '</tr>'
+      );
+    }
+  }
+}

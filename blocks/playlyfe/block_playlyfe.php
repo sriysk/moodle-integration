@@ -161,40 +161,12 @@ class block_playlyfe extends block_base {
       case 4:
         $this->title = 'Profile';
         if($isadmin) {
-          $this->content->text = 'You need to be a student yo view the profile';
+          $this->content->text = 'You need to be a student to view the profile';
           return;
         }
-        $profile = $pl->get('/runtime/player', array( 'player_id' => ''.$USER->id));
-        $html = '<h5>'.$profile['alias'].'</h5>';
-        $html .= '<b>Scores</b>';
-        $html .= '<table class="generaltable">';
-        $html .= '<thead>';
-        $html .= '<tr>';
-        $html .= '<th class="header c1 lastcol centeralign" style="" scope="col">Point</th>';
-        $html .= '<th class="header c1 lastcol centeralign" style="" scope="col">Score</th>';
-        $html .= '</tr>';
-        $html .= '</thead>';
-        $html .= '<tbody>';
-        foreach($profile['scores'] as $score) {
-          if ($score['metric']['type'] === 'point') {
-            $html .= '<tr>';
-            $html .= '<td>'. $score['metric']['name'] . '</td><td>' . $score['value'] . '</td>';
-            $html .= '</tr>';
-          }
-        }
-        $html .= '</tbody>';
-        $html .= '</table>';
-        $html .= '<b>Teams</b>';
-        $html .= '<table class="generaltable">';
-        $html .= '<thead>';
-        $html .= '<tr>';
-        $html .= '</tr>';
-        $html .= '</thead>';
-        $html .= '<tbody>';
-        $html .= '<tr><td>You are not part of any teams right now</td></tr>';
-        $html .= '</tbody>';
-        $html .= '</table>';
-        $this->content->text = $html;
+        $profile = $pl->get('/runtime/player', array('player_id' => ''.$USER->id));
+        $this->content->text = '<div id="pl_profile_block"></div>';
+        $this->page->requires->js_init_call('show_profile', array($profile));
       case 5:
         // $leaderboard = $pl->get('/runtime/leaderboards/game_leaderboard', array(
         //   'player_id' => 'student1',
