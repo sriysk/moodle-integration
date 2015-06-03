@@ -200,7 +200,18 @@ class block_playlyfe extends block_base {
     return true;
   }
 
-  function instance_allow_multiple() {
+  public function instance_allow_multiple() {
     return true;
+  }
+
+  public function applicable_formats() {
+    return array(
+      'all' => true,
+      'admin' => false,
+      'site-index' => true,
+      'course-view' => true,
+      'mod' => false,
+      'my' => true
+    );
   }
 }
