@@ -13,7 +13,7 @@ else if(stripos($route, '/admin') === 0 && !$can_modify) {
 else {
   header('Content-Type: application/json');
   try {
-    $data = json_decode(file_get_contents('php://input'), true);
+    $data = json_decode(file_get_contents('php://input'), false);
     $pl = block_playlyfe_sdk::get_pl();
     echo json_encode($pl->api($method, $route, array(), $data));
   }
