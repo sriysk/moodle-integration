@@ -195,6 +195,31 @@ class block_playlyfe extends block_base {
         $html .= '</tbody>';
         $html .= '</table>';
         $this->content->text = $html;
+      case 5:
+        // $leaderboard = $pl->get('/runtime/leaderboards/game_leaderboard', array(
+        //   'player_id' => 'student1',
+        //   'cycle' => 'alltime',
+        //   'skip' => 0,
+        //   'limit' => 10,
+        // ));
+        // $html = '<table class="generaltable">';
+        // $html .= '<thead>';
+        // $html .= '<tr>';
+        // $html .= '<th class="header c1 lastcol centeralign" style="" scope="col">Rank</th>';
+        // $html .= '<th class="header c1 lastcol centeralign" style="" scope="col">Name</th>';
+        // $html .= '<th class="header c1 lastcol centeralign" style="" scope="col">Score</th>';
+        // $html .= '</tr>';
+        // $html .= '</thead>';
+        // $html .= '<tbody>';
+        // foreach($leaderboard['data'] as $data) {
+        //   $html .= '<tr>';
+        //   $html .= '<td>'. $data['rank'] . '</td><td>' . $data['player']['alias'] . '</td><td>' . $data['score'].'</td>';
+        //   $html .= '</tr>';
+        // }
+        // $html .= '</tbody>';
+        // $html .= '</table>';
+        // $this->content->text = $html;
+        break;
     }
     return $this->content;
   }
