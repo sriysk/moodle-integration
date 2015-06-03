@@ -5,19 +5,16 @@ $capabilities = array(
       'captype' => 'write',
       'contextlevel' => CONTEXT_BLOCK,
       'archetypes' => array(
-          'editingteacher' => CAP_ALLOW,
-          'coursecreator'  => CAP_ALLOW,
-          'manager' => CAP_ALLOW,
-          'admin' => CAP_ALLOW
+          'manager' => CAP_ALLOW
       ),
       'clonepermissionsfrom' => 'moodle/site:manageblocks'
   ),
   'block/playlyfe:myaddinstance' => array(
-      'captype' => 'write',
-      'contextlevel' =>  CONTEXT_BLOCK,
+      'captype' => 'read',
+      'contextlevel' =>  CONTEXT_SYSTEM,
       'archetypes' => array(
-          'user' => CAP_ALLOW
+          'manager' => CAP_ALLOW
       ),
-      'clonepermissionsfrom' => 'moodle/my:manageblocks'
+      'clonepermissionsfrom' => 'moodle/site:manageblocks'
   ),
 );

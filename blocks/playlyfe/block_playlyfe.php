@@ -6,11 +6,19 @@ class block_playlyfe extends block_base {
     $this->title = 'Playlyfe';
   }
 
+  // This will return all text content which will be displayed in the blocks
+  // This is where we are going to integrate our Game using the Playlyfe REST API
   public function get_content() {
     global $USER;
     $pl = block_playlyfe_sdk::get_pl();
     $this->content = new stdClass;
     $this->content->footer = 'Powered by Playlyfe';
+    $firewall = array(0, 1, 2, 3); // prevent users who don't have site config permission from accessing these type of blocks
+    $isadmin = !has_capability('moodle/site:config', context_user::instance($USER->id));
+    if(in_array($this->config->type, $firewall) && !$isadmin) {
+      $this->content->text = "You need to be an admin to use this type of the Playlyfe block";
+      return;
+    }
     switch ($this->config->type) {
       case 0:
         $this->title = 'Points';
@@ -151,6 +159,11 @@ class block_playlyfe extends block_base {
         $this->page->requires->js_init_call('init_rule_list', array(array('rule' => $rule, 'point' => $point, 'badges' => $badges)));
         break;
       case 4:
+        $this->title = 'Profile';
+        if($isadmin) {
+          $this->content->text = 'You need to be a student yo view the profile';
+          return;
+        }
         $profile = $pl->get('/runtime/player', array( 'player_id' => ''.$USER->id));
         $html = '<h5>'.$profile['alias'].'</h5>';
         $html .= '<b>Scores</b>';
@@ -186,6 +199,7 @@ class block_playlyfe extends block_base {
     return $this->content;
   }
 
+  // all the required javascript for our block
   public function get_required_javascript() {
     global $CFG;
     parent::get_required_javascript();
@@ -196,14 +210,17 @@ class block_playlyfe extends block_base {
     $this->page->requires->js_init_call('init_cfg', array(array('root' => $CFG->wwwroot)));
   }
 
+  // Each of our block instance has some configuration parameters
   public function has_config() {
     return true;
   }
 
+  // Admin can create multiple block instances
   public function instance_allow_multiple() {
     return true;
   }
 
+  // Allow this block to be added on any page
   public function applicable_formats() {
     return array(
       'all' => true,
