@@ -14,7 +14,7 @@ class block_playlyfe extends block_base {
     $this->content = new stdClass;
     $this->content->footer = 'Powered by Playlyfe';
     $firewall = array(0, 1, 2, 3); // prevent users who don't have site config permission from accessing these type of blocks
-    $isadmin = !has_capability('moodle/site:config', context_user::instance($USER->id));
+    $isadmin = has_capability('moodle/site:config', context_user::instance($USER->id));
     if(in_array($this->config->type, $firewall) && !$isadmin) {
       $this->content->text = "You need to be an admin to use this type of the Playlyfe block";
       return;
