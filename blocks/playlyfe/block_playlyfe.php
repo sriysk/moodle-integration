@@ -29,17 +29,6 @@ class block_playlyfe extends block_base {
     $this->page->requires->jquery_plugin('ui-css');
   }
 
-  public function specialization() {
-    if (!empty($this->config->title)) {
-      $this->title = $this->config->title;
-    } else {
-      $this->config->title = 'Playlyfe';
-    }
-    if (empty($this->config->type)) {
-      $this->config->type = 0;
-    }
-  }
-
   public function has_config() {
     return true;
   }
