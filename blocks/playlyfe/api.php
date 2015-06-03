@@ -16,6 +16,7 @@ else {
     $data = json_decode(file_get_contents('php://input'), false);
     $pl = block_playlyfe_sdk::get_pl();
     echo json_encode($pl->api($method, $route, array(), $data));
+    $pl->post('/design/versions/latest/deploy');
   }
   catch(Exception $e) {
     http_response_code(400);

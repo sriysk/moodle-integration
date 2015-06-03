@@ -17,7 +17,7 @@ class block_playlyfe_observer {
   }
 
   public static function course_completed(\core\event\course_completed $event) {
-    self::execute_rule('course_completed_'.$event->courseid, $event->user_id);
+    self::execute_rule('course_completed_'.$event->courseid, $event->relateduserid);
   }
 
   public static function execute_rule($rule_id, $user_id, $variables = array()) {
