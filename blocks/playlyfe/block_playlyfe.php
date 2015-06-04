@@ -55,12 +55,12 @@ class block_playlyfe extends block_base {
         $this->title = 'Levels';
         try {
           $base = $pl->get('/design/versions/latest/metrics/point');
-          $level = $pl->get('/design/versions/latest/metrics/level');
+          $state = $pl->get('/design/versions/latest/metrics/level');
           $level_rule = $pl->get('/design/versions/latest/rules/level');
         }
         catch(Exception $e) {
           if($e->name == 'metric_not_found') {
-            $level = $pl->post('/design/versions/latest/metrics', array(), array(
+            $state = $pl->post('/design/versions/latest/metrics', array(), array(
               'id' => 'level',
               'name' => 'level',
               'type' => 'state',
@@ -89,7 +89,7 @@ class block_playlyfe extends block_base {
           }
         }
         $this->content->text = '<div id="pl_level_block"></div>';
-        $this->page->requires->js_init_call('init_level_list', array(array('level' => $level, 'base' => $base, 'rule' => $level_rule)));
+        $this->page->requires->js_init_call('init_level_list', array(array('state' => $state, 'base' => $base, 'rule' => $level_rule)));
         break;
       case 3:
         switch ($this->config->event) {
@@ -167,30 +167,6 @@ class block_playlyfe extends block_base {
         $profile = $pl->get('/runtime/player', array('player_id' => ''.$USER->id));
         $this->content->text = '<div id="pl_profile_block"></div>';
         $this->page->requires->js_init_call('show_profile', array($profile));
-      case 5:
-        // $leaderboard = $pl->get('/runtime/leaderboards/game_leaderboard', array(
-        //   'player_id' => 'student1',
-        //   'cycle' => 'alltime',
-        //   'skip' => 0,
-        //   'limit' => 10,
-        // ));
-        // $html = '<table class="generaltable">';
-        // $html .= '<thead>';
-        // $html .= '<tr>';
-        // $html .= '<th class="header c1 lastcol centeralign" style="" scope="col">Rank</th>';
-        // $html .= '<th class="header c1 lastcol centeralign" style="" scope="col">Name</th>';
-        // $html .= '<th class="header c1 lastcol centeralign" style="" scope="col">Score</th>';
-        // $html .= '</tr>';
-        // $html .= '</thead>';
-        // $html .= '<tbody>';
-        // foreach($leaderboard['data'] as $data) {
-        //   $html .= '<tr>';
-        //   $html .= '<td>'. $data['rank'] . '</td><td>' . $data['player']['alias'] . '</td><td>' . $data['score'].'</td>';
-        //   $html .= '</tr>';
-        // }
-        // $html .= '</tbody>';
-        // $html .= '</table>';
-        // $this->content->text = $html;
         break;
     }
     return $this->content;
@@ -201,8 +177,7 @@ class block_playlyfe extends block_base {
     global $CFG;
     parent::get_required_javascript();
     $this->page->requires->jquery();
-    $this->page->requires->jquery_plugin('ui');
-    $this->page->requires->jquery_plugin('ui-css');
+    $this->page->requires->js('/blocks/playlyfe/js/plupload.full.min.js');
     $this->page->requires->js('/blocks/playlyfe/block_playlyfe.js');
     $this->page->requires->js_init_call('init_cfg', array(array('root' => $CFG->wwwroot)));
   }
@@ -221,10 +196,10 @@ class block_playlyfe extends block_base {
   public function applicable_formats() {
     return array(
       'all' => true,
-      'admin' => false,
+      'admin' => true,
       'site-index' => true,
       'course-view' => true,
-      'mod' => false,
+      'mod' => true,
       'my' => true
     );
   }
