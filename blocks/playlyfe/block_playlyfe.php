@@ -12,6 +12,7 @@ class block_playlyfe extends block_base {
     $this->content->footer = 'Powered by Playlyfe';
     switch ($this->config->type) {
       case 0:
+        $this->title = 'Points';
         try {
           $point = $pl->get('/design/versions/latest/metrics/point');
         }
@@ -35,11 +36,13 @@ class block_playlyfe extends block_base {
         $this->page->requires->js_init_call('init_point_block', array($point));
         break;
       case 1:
+        $this->title = 'Badges';
         $badges = $pl->get('/design/versions/latest/metrics', array('fields' => 'id,name,description,type,image', 'tags' => 'badge'));
         $this->content->text = '<div id="pl_badge_block"></div>';
         $this->page->requires->js_init_call('init_badge_list', array($badges));
         break;
       case 2:
+        $this->title = 'Levels';
         try {
           $base = $pl->get('/design/versions/latest/metrics/point');
           $state = $pl->get('/design/versions/latest/metrics/level');
