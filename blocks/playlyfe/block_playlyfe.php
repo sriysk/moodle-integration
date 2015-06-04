@@ -42,12 +42,12 @@ class block_playlyfe extends block_base {
       case 2:
         try {
           $base = $pl->get('/design/versions/latest/metrics/point');
-          $level = $pl->get('/design/versions/latest/metrics/level');
+          $state = $pl->get('/design/versions/latest/metrics/level');
           $level_rule = $pl->get('/design/versions/latest/rules/level');
         }
         catch(Exception $e) {
           if($e->name == 'metric_not_found') {
-            $level = $pl->post('/design/versions/latest/metrics', array(), array(
+            $state = $pl->post('/design/versions/latest/metrics', array(), array(
               'id' => 'level',
               'name' => 'level',
               'type' => 'state',
@@ -76,7 +76,7 @@ class block_playlyfe extends block_base {
           }
         }
         $this->content->text = '<div id="pl_level_block"></div>';
-        $this->page->requires->js_init_call('init_level_list', array(array('level' => $level, 'base' => $base, 'rule' => $level_rule)));
+        $this->page->requires->js_init_call('init_level_list', array(array('state' => $state, 'base' => $base, 'rule' => $level_rule)));
         break;
       case 3:
       case 4:
@@ -89,8 +89,7 @@ class block_playlyfe extends block_base {
     global $CFG;
     parent::get_required_javascript();
     $this->page->requires->jquery();
-    $this->page->requires->jquery_plugin('ui');
-    $this->page->requires->jquery_plugin('ui-css');
+    $this->page->requires->js('/blocks/playlyfe/js/plupload.full.min.js');
     $this->page->requires->js('/blocks/playlyfe/block_playlyfe.js');
     $this->page->requires->js_init_call('init_cfg', array(array('root' => $CFG->wwwroot)));
   }
