@@ -9,7 +9,6 @@
 #
 # See gitignore(5) man page for more details
 #
-/config.php
 /lib/editor/tinymce/extra/tools/temp/
 *~
 *.swp
@@ -36,13 +35,4 @@ composer.phar
 /lib/yuilib/*/*/*-coverage.js
 atlassian-ide-plugin.xml
 /node_modules/
-/*
-!/.gitignore
-!/README.md
-!/LICENSE
-!/vendor
-/vendor/*
-!/blocks
-/blocks/*
-!/blocks/playlyfe
 
