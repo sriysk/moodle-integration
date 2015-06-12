@@ -10,6 +10,11 @@ $CFG->dbhost    = 'localhost';
 $CFG->dbname    = 'moodle';
 $CFG->dbuser    = 'moodleuser';
 $CFG->dbpass    = 'moodle';
+// For openshift
+// $CFG->dbhost    = $_ENV['OPENSHIFT_MYSQL_DB_HOST'];
+// $CFG->dbname    = $_ENV['OPENSHIFT_APP_NAME'];
+// $CFG->dbuser    = $_ENV['OPENSHIFT_MYSQL_DB_USERNAME'];
+// $CFG->dbpass    = $_ENV['OPENSHIFT_MYSQL_DB_PASSWORD'];
 $CFG->prefix    = 'mdl_';
 $CFG->dboptions = array (
   'dbpersist' => 0,
@@ -17,9 +22,19 @@ $CFG->dboptions = array (
   'dbsocket' => '',
 );
 
+// $CFG->dboptions = array (
+//   'dbpersist' => 0,
+//   'dbport' => $_ENV['OPENSHIFT_MYSQL_DB_PORT'],
+//   'dbsocket' => '',
+// );
+
 $CFG->wwwroot   = 'http://localhost:3000';
 $CFG->dataroot  = '/var/www/moodledata';
 $CFG->admin     = 'admin';
+
+// $CFG->wwwroot   = "https://$_ENV[OPENSHIFT_APP_DNS]";
+// $CFG->sslproxy=true;
+// $CFG->dataroot  = $_ENV['OPENSHIFT_DATA_DIR'];
 
 $CFG->directorypermissions = 0777;
 
