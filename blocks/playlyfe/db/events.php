@@ -21,4 +21,9 @@ $observers = array(
         'eventname'   => 'mod_forum\event\discussion_created',
         'callback'    => 'block_playlyfe_observer::forum_discussion_created',
    ),
+   array(
+        'eventname'   => 'mod_quiz\event\attempt_submitted',
+        'callback'    => 'block_playlyfe_observer::quiz_attempt_submitted',
+   ),
 );
+

@@ -28,6 +28,10 @@ class block_playlyfe_observer {
     self::execute_rule('forum_discussion_created_'.$event->courseid, $event->userid);
   }
 
+  public static function quiz_attempt_submitted(mod_quiz\event\attempt_submitted $event) {
+    self::execute_rule('quiz_attempt_submitted_'.$event->contextinstanceid, $event->relateduserid);
+  }
+
   public static function execute_rule($rule_id, $user_id, $variables = array()) {
     $pl = block_playlyfe_sdk::get_pl();
     try {

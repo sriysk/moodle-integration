@@ -145,6 +145,16 @@ class block_playlyfe extends block_base {
             $this->title = 'Forum Discussion Created Rule';
             $rule_id = "forum_discussion_created_".$this->page->course->id;
             break;
+          case 5:
+            $cmid = required_param('cmid', PARAM_INT);
+            $currentcontext = $this->page->context->get_course_context(false);
+            if(empty($currentcontext)) {
+              $this->content->text = 'This block must be present on a course page';
+              return;
+            }
+            $this->title = 'Quiz Submitted Rule';
+            $rule_id = "quiz_attempt_submitted_".$cmid;
+            break;
         }
         $point = $pl->get('/design/versions/latest/metrics/point');
         $badges = $pl->get('/design/versions/latest/metrics', array('fields' => 'id,name,description,type,image', 'tags' => 'badge'));

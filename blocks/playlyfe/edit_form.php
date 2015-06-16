@@ -12,7 +12,7 @@ class block_playlyfe_edit_form extends block_edit_form {
     $mform->addElement('select', 'config_type', 'Type', $types);
     $mform->setDefault('config_type', 0);
 
-    $events = array('0' => 'LoggedIn', '1' => 'LoggedOut', '2' => 'CourseCompleted', '3' => 'Forum Posted', '4' => 'Forum Discussion Created');
+    $events = array('0' => 'LoggedIn', '1' => 'LoggedOut', '2' => 'CourseCompleted', '3' => 'Forum Posted', '4' => 'Forum Discussion Created', '5' => 'Quiz Submitted');
     $mform->addElement('select', 'config_event', 'Event', $events);
     $mform->setDefault('config_event', 0);
 
