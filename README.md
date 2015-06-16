@@ -1,4 +1,4 @@
-# Moodle Integration
+# Gamifying Moodle (2.9)
 
 This is the source code for the Playlyfe Blog Post Moodle Integration. The tutorial is divided into 3 parts so the source is also divided into 3 parts.
 Each tutorial part refers to a branch within this git repository.

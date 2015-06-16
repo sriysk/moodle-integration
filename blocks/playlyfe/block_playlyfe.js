@@ -74,7 +74,7 @@ function init_point_block(version, point) {
           '<td style="vertical-align: middle;">' +
             '<div style="position: relative;">' +
               '<p id="point_name">'+point.name+'</p>' +
-              '<img style="position: absolute;right: 40px;bottom: 5px;" src="http://localhost:3000/theme/image.php/clean/core/1432795487/t/editstring" id="point_edit">' +
+              '<img style="position: absolute;right: 40px;bottom: 5px;" src="'+root+'/theme/image.php/clean/core/1432795487/t/editstring" id="point_edit">' +
             '</div>' +
             '</td>' +
         '</tr>'+
@@ -142,7 +142,7 @@ BadgeList.prototype.render = function() {
         '<th class="header c1 lastcol centeralign">' +
           '<div style="position: relative;">' +
             'Name' +
-            '<img style="position: absolute;right: 40px;bottom: 5px;" src="http://localhost:3000/theme/image.php/clean/core/1432795487/t/add" id="add_badge">' +
+            '<img style="position: absolute;right: 40px;bottom: 5px;" src="'+root+'/theme/image.php/clean/core/1432795487/t/add" id="add_badge">' +
           '</div>' +
         '</th>' +
       '</tr>'+
@@ -160,8 +160,8 @@ BadgeList.prototype.render = function() {
           '</td>' +
           '<td style="vertical-align: middle;">' +
             '<div style="position: relative;">' + badge.name +
-              '<img style="position: absolute;right: 40px;" src="http://localhost:3000/theme/image.php/clean/core/1432795487/t/editstring" id="'+badge.id+'_edit">' +
-              '<img style="position: absolute;right: 0px;" src="http://localhost:3000/theme/image.php/clean/core/1432795487/t/delete" id="'+badge.id+'_delete">' +
+              '<img style="position: absolute;right: 40px;" src="'+root+'/theme/image.php/clean/core/1432795487/t/editstring" id="'+badge.id+'_edit">' +
+              '<img style="position: absolute;right: 0px;" src="'+root+'/theme/image.php/clean/core/1432795487/t/delete" id="'+badge.id+'_delete">' +
             '</div>' +
           '</td>' +
         '</tr>'
@@ -307,7 +307,7 @@ LevelList.prototype.render = function() {
           '<td style="vertical-align: middle;">' +
             '<div style="position: relative;">'+
               '<p>' + (level.threshold || 'Infinity') + '</p>' +
-              '<img style="position: absolute;right: 0px;bottom: 5px;" src="http://localhost:3000/theme/image.php/clean/core/1432795487/t/delete" id="'+rank+'_delete">' +
+              '<img style="position: absolute;right: 0px;bottom: 5px;" src="'+root+'/theme/image.php/clean/core/1432795487/t/delete" id="'+rank+'_delete">' +
             '</div>' +
           '</td>' +
         '</tr>'
@@ -462,7 +462,7 @@ RuleList.prototype.add = function(id, value) {
       '<td style="vertical-align: middle;">' +
         '<div style="position: relative;">'+
           value +
-          '<img style="position: absolute;right: 0px;bottom: 5px;" src="http://localhost:3000/theme/image.php/clean/core/1432795487/t/delete" id="'+tag_id+'_delete">' +
+          '<img style="position: absolute;right: 0px;bottom: 5px;" src="'+root+'/theme/image.php/clean/core/1432795487/t/delete" id="'+tag_id+'_delete">' +
         '</div>' +
       '</td>' +
     '</tr>'
@@ -530,11 +530,19 @@ RuleList.prototype.save = function(self) {
 function show_profile(version, profile) {
   $('#pl_profile_block').html(
     '<h5>'+profile.alias+'</h5>' +
-    '<table id="pl_profile_point" class="generaltable"><tbody></tbody></table>' +
-    '<table id="pl_profile_level" class="generaltable"><tbody></tbody></table>' +
+    '<p id="point_placeholder"> You dont have any points </p>' +
+    '<table id="pl_profile_point" class="generaltable">' +
+      '<tbody>'  +
+      '</tbody>' +
+    '</table>' +
+    '<table id="pl_profile_level" class="generaltable">' +
+      '<tbody>'  +
+      '</tbody>' +
+    '</table>' +
     '<b>Badges</b>' +
+    '<p id="badge_placeholder"> You havent got any badges yet do something </p>' +
     '<table id="pl_profile_badges" class="generaltable">' +
-      '<tbody>' +
+      '<tbody>'  +
       '</tbody>' +
     '</table>'
   );
@@ -542,24 +550,34 @@ function show_profile(version, profile) {
   for(var i=0;i < profile.scores.length; i++) {
     var score = profile.scores[i];
     if(score.metric.id === 'point') {
+      $('#point_placeholder').remove();
       point = score;
       $("#pl_profile_point tbody").append(
-        '<tr>' +
-          '<td><img src="' + root + '/blocks/playlyfe/image.php?metric_id=point"></td>' +
-          '<td style="vertical-align: middle;">' + score.metric.name + ' </b>' +
-          '<td  style="vertical-align: middle;">' + score.value + '</td>' +
+        '<tr style="vertical-align: middle;">' +
+          '<td><p><img src="' + root + '/blocks/playlyfe/image.php?metric_id=point"></td>' +
+          '<td><b>'+ score.metric.name+' </b><p>'+score.value+'</p></p></td>' +
         '</tr>'
       );
     } else if (score.metric.type === 'state') {
-      $("#pl_profile_level tbody").append(
+      if(score.meta.next){
+        $("#pl_profile_level tbody").append(
+          '<tr style="vertical-align: middle;">' +
+            '<td><p><img src="' + root + '/blocks/playlyfe/image.php?metric_id=level&state='+score.value.name+'"></td>' +
+            '<td><b>' + score.value.name + '</b><p>' + 'You need ' + (parseInt(score.meta.high) - parseInt(point.value)) + ' ' + score.meta.base_metric.name +' points to get to <b>' + score.meta.next + '</b></p></p></td>' +
+          '</tr>'
+        );
+      } else {
+       $("#pl_profile_level tbody").append(
         '<tr style="vertical-align: middle;">' +
           '<td><p><img src="' + root + '/blocks/playlyfe/image.php?metric_id=level&state='+score.value.name+'"></td>' +
-          '<td><b>' + score.value.name + '</b><p>' + 'You need ' + (parseInt(score.meta.high) - parseInt(point.value)) + ' ' + score.meta.base_metric.name +' points to get to <b>' + score.meta.next + '</b></p></p></td>' +
+          '<td><b>'+score.value.name+'</b><p> You are at the Highest Level</p></p></td>' +
         '</tr>'
-      );
+       );
+     }
     } else {
+      $('#badge_placeholder').remove();
       $('#pl_profile_badges tbody').append(
-        '<tr>' +
+        '<tr style="vertical-align: middle;">' +
           '<td><img src="' + root + '/blocks/playlyfe/image.php?metric_id='+score.metric.id+'"></td>' +
           '<td>' + score.metric.name + '</td>' +
           '<td>' + score.value + '</td>' +
@@ -567,4 +585,30 @@ function show_profile(version, profile) {
       );
     }
   }
+}
+
+
+/*
+  Displays the point leaderboard
+*/
+function show_leaderboard(version, leaderboard) {
+  var players = '';
+  for(var i=0;i<leaderboard.data.length;i++) {
+    var item = leaderboard.data[i];
+    players += '<tr><td>' + item.rank + '</td><td>' + item.player.alias + '</td><td>' + item.score + '</td>';
+  }
+  $('#pl_leaderboard').append(
+    '<table class="generaltable">' +
+      '<thead>' +
+        '<tr>' +
+          '<th class="header c1 lastcol centeralign" style="" scope="col">Rank</th>' +
+          '<th class="header c1 lastcol centeralign" style="" scope="col">Name</th>' +
+          '<th class="header c1 lastcol centeralign" style="" scope="col">Score</th>' +
+        '</tr>' +
+      '</thead>' +
+      '<tbody>' +
+        players +
+      '</tbody>' +
+    '</table>'
+  );
 }

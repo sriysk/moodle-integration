@@ -22,6 +22,7 @@ class block_playlyfe extends block_base {
     switch ($this->config->type) {
       case 0:
         $this->title = 'Points';
+        $point = null;
         try {
           $point = $pl->get('/design/versions/latest/metrics/point');
         }
@@ -37,6 +38,20 @@ class block_playlyfe extends block_base {
                 'min' => '0'
               ),
               'tags' => ['point']
+            ));
+            $pl->post('/design/versions/latest/leaderboards', array(), array(
+              'id' => 'point',
+              'name' => 'point',
+              'type' => 'regular',
+              'description' => '',
+              'entity_type' => 'players',
+              'scope' => array(
+                'type' => 'game'
+              ),
+              'metric' => array(
+                'id' => 'point',
+                'type' => 'point'
+              )
             ));
           } else {
             throw $e;
@@ -111,6 +126,25 @@ class block_playlyfe extends block_base {
             $this->title = 'Course Completed Rule';
             $rule_id = "course_completed_".$this->page->course->id;
             break;
+          case 3:
+            // Find context if not course then display this block must be shown only on course page
+            $currentcontext = $this->page->context->get_course_context(false);
+            if(empty($currentcontext)) {
+              $this->content->text = 'This block must be present on a course page';
+              return;
+            }
+            $this->title = 'Forum Post Created Rule';
+            $rule_id = "forum_post_created_".$this->page->course->id;
+            break;
+          case 4:
+            $currentcontext = $this->page->context->get_course_context(false);
+            if(empty($currentcontext)) {
+              $this->content->text = 'This block must be present on a course page';
+              return;
+            }
+            $this->title = 'Forum Discussion Created Rule';
+            $rule_id = "forum_discussion_created_".$this->page->course->id;
+            break;
         }
         $point = $pl->get('/design/versions/latest/metrics/point');
         $badges = $pl->get('/design/versions/latest/metrics', array('fields' => 'id,name,description,type,image', 'tags' => 'badge'));
@@ -160,13 +194,35 @@ class block_playlyfe extends block_base {
         break;
       case 4:
         $this->title = 'Profile';
-        if($isadmin) {
-          $this->content->text = 'You need to be a student to view the profile';
-          return;
+        // if($isadmin) {
+        //   $this->content->text = 'You need to be a student to view the profile';
+        //   return;
+        // }
+        $profile = null;
+        try {
+          $profile = $pl->get('/runtime/player', array('player_id' => ''.$USER->id));
         }
-        $profile = $pl->get('/runtime/player', array('player_id' => ''.$USER->id));
+        catch(Exception $e) {
+          if($e->name == 'player_not_found') {
+            $profile = $pl->post('/admin/players', array(), array('id' => $USER->id, 'alias' => $USER->firstname.' '.$USER->lastname));
+          }
+          else {
+            throw $e;
+          }
+        }
         $this->content->text = '<div id="pl_profile_block"></div>';
         $this->page->requires->js_init_call('show_profile', array($profile));
+        break;
+      case 5:
+        $this->title = "Leaderboard";
+        $leaderboard = $pl->get('/runtime/leaderboards/point', array(
+          'player_id' => ''.$USER->id,
+          'cycle' => 'alltime',
+          'skip' => 0,
+          'limit' => 10,
+        ));
+        $this->content->text = '<div id="pl_leaderboard"></div>';
+        $this->page->requires->js_init_call('show_leaderboard', array($leaderboard));
         break;
     }
     return $this->content;

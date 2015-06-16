@@ -20,6 +20,14 @@ class block_playlyfe_observer {
     self::execute_rule('course_completed_'.$event->courseid, $event->relateduserid);
   }
 
+  public static function forum_post_created(mod_forum\event\post_created $event) {
+    self::execute_rule('forum_post_created_'.$event->courseid, $event->userid);
+  }
+
+  public static function forum_discussion_created(mod_forum\event\discussion_created $event) {
+    self::execute_rule('forum_discussion_created_'.$event->courseid, $event->userid);
+  }
+
   public static function execute_rule($rule_id, $user_id, $variables = array()) {
     $pl = block_playlyfe_sdk::get_pl();
     try {
