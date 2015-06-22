@@ -146,14 +146,18 @@ class block_playlyfe extends block_base {
             $rule_id = "forum_discussion_created_".$this->page->course->id;
             break;
           case 5:
-            $cmid = required_param('cmid', PARAM_INT);
+            $id = optional_param('id', null, PARAM_INT);
+            if(!$id) {
+              $this->content->text = 'This block must be present on the quiz page';
+              return;
+            }
             $currentcontext = $this->page->context->get_course_context(false);
             if(empty($currentcontext)) {
               $this->content->text = 'This block must be present on a course page';
               return;
             }
             $this->title = 'Quiz Submitted Rule';
-            $rule_id = "quiz_attempt_submitted_".$cmid;
+            $rule_id = "quiz_attempt_submitted_".$id;
             break;
         }
         $point = $pl->get('/design/versions/latest/metrics/point');
