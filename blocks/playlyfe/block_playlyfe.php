@@ -9,7 +9,7 @@ class block_playlyfe extends block_base {
   // This will return all text content which will be displayed in the blocks
   // This is where we are going to integrate our Game using the Playlyfe REST API
   public function get_content() {
-    global $USER;
+    global $USER, $DB;
     $pl = block_playlyfe_sdk::get_pl();
     $this->content = new stdClass;
     $this->content->footer = 'Powered by Playlyfe';
@@ -208,13 +208,56 @@ class block_playlyfe extends block_base {
         break;
       case 4:
         $this->title = 'Profile';
-        // if($isadmin) {
-        //   $this->content->text = 'You need to be a student to view the profile';
-        //   return;
-        // }
         $profile = null;
         try {
           $profile = $pl->get('/runtime/player', array('player_id' => ''.$USER->id));
+          $notifications = $pl->get('/runtime/notifications', array('player_id' => $USER->id,
+            'start' => date('Y-m-d',  time() - (7)*(24 * 60 * 60)),
+            'end' => date('Y-m-d',  time() + (24 * 60 * 60))
+          ));
+          $logs = array();
+          if($notifications) {
+            $notifications['data'] = array_reverse($notifications['data']);
+            foreach($notifications['data'] as $notification) {
+              if($notification['seen'] == false) {
+                if ($notification['event'] == 'custom_rule') {
+                  if($notification['rule']['id'] == 'log_in') {
+                    $notification['title'] = 'Logged In';
+                  }
+                  else if($notification['rule']['id'] == 'log_out') {
+                    $notification['title'] = 'Logged Out';
+                  }
+                  else {
+                    $split = explode('_', $notification['rule']['id']);
+                    $course_id = array_pop($split);
+                    $course = new StdClass;
+                    $course->name = '';
+                    $notification['title'] = $split[0];
+                    try {
+                      $course = $DB->get_record('course', array('id' => $course_id), 'id, name', MUST_EXIST);
+                    }
+                    catch (Exception $e) {}
+                    if($split[0] == 'forum' && $split[1] == 'post') {
+                      $notification['title'] = 'Forum Comment Posted in Course '.$course->name;
+                    }
+                    if($split[0] == 'forum' && $split[1] == 'discussion') {
+                      $notification['title'] = 'Forum Discussion Created in Course '.$course->name;
+                    }
+                    if($split[0] == 'course') {
+                      $notification['title'] = 'Course '.$course->name . ' Completed';
+                    }
+                    if($split[0] == 'quiz') {
+                      $notification['title'] = 'Quiz Submitted in '.$course->name;
+                    }
+                  }
+                }
+                if ($notification['event'] == 'level') {
+                  $notification['title'] = 'New Level Attained';
+                }
+                array_push($logs, $notification);
+              }
+            }
+          }
         }
         catch(Exception $e) {
           if($e->name == 'player_not_found') {
@@ -224,8 +267,8 @@ class block_playlyfe extends block_base {
             throw $e;
           }
         }
-        $this->content->text = '<div id="pl_profile_block"></div>';
-        $this->page->requires->js_init_call('show_profile', array($profile));
+        $this->content->text = '<div id="pl_profile_block"></div><div id="pl_notification_block"></div><div id="pl_dialog"></div>';
+        $this->page->requires->js_init_call('show_profile', array(array('profile' => $profile, 'notifications' => $logs)));
         break;
       case 5:
         $this->title = "Leaderboard";
@@ -247,6 +290,8 @@ class block_playlyfe extends block_base {
     global $CFG;
     parent::get_required_javascript();
     $this->page->requires->jquery();
+    $this->page->requires->jquery_plugin('ui');
+    $this->page->requires->jquery_plugin('ui-css');
     $this->page->requires->js('/blocks/playlyfe/js/plupload.full.min.js');
     $this->page->requires->js('/blocks/playlyfe/block_playlyfe.js');
     $this->page->requires->js_init_call('init_cfg', array(array('root' => $CFG->wwwroot)));

@@ -189,7 +189,7 @@ BadgeList.prototype.getBadge = function(id) {
 BadgeList.prototype.create = function(name) {
   var self = this;
   makeApi('POST', '/design/versions/latest/metrics', {
-    id: name,
+    id: 'b_'+name,
     name: name,
     type: 'point',
     constraints: {
@@ -527,7 +527,9 @@ RuleList.prototype.save = function(self) {
 /*
   Displays the user profile
 */
-function show_profile(version, profile) {
+function show_profile(version, data) {
+  var profile = data.profile;
+  var notifications = data.notifications;
   $('#pl_profile_block').html(
     '<h5>'+profile.alias+'</h5>' +
     '<p id="point_placeholder"> You dont have any points </p>' +
@@ -585,8 +587,72 @@ function show_profile(version, profile) {
       );
     }
   }
+  $('#pl_notification_block').html(
+    '<h5>Activity</h5>' +
+    '<ul>' +
+    '</ul>'
+  );
+  if(notifications && notifications.length > 0) {
+    show_feedback(notifications);
+  }
 }
 
+var dialog_open = false;
+var notification_ids = [];
+function show_feedback(logs) {
+  log = logs.pop()
+  notification_ids.push(log.id);
+  var btnText = "Next";
+  if(logs.length === 0) {
+    btnText = "OK";
+  }
+  var html = '';
+  for(var j=0;j < log.changes.length;j++) {
+    var change = log.changes[j];
+    if(change.metric.id == 'point') {
+      html +=  '<div><div class="image avatar"><img src="' + root + '/blocks/playlyfe/image.php?metric_id='+change.metric.id+'"></img></div>' +
+        '<p>You have gained <b>'+(change.delta['new']-change.delta['old'])+'</b> '+change.metric.name+' Points </p></div>';
+    }
+    else if(change.metric.type == 'state') {
+      html += '<div><div class="image avatar"><img src="' + root + '/blocks/playlyfe/image.php?metric_id='+change.metric.id+'&state='+change.delta['new']+'"></img></div>' +
+        '<p>You have gained '+change.metric.name+' <b>'+(change.delta['new'])+'</b></p></div>';
+    }
+    else {
+      html += '<div><div class="image avatar"><img src="' + root + '/blocks/playlyfe/image.php?metric_id='+change.metric.id+'"></img></div>' +
+        '<p>You have gained <b>'+(change.delta['new']-change.delta['old'])+'</b> '+change.metric.name+' Badge </p></div>';
+    }
+    html += '<div style="clear: both;"></div>';
+  }
+  if(dialog_open === false) {
+    $("#pl_dialog").dialog({
+      dialogClass: "no-close",
+      closeOnEscape: false,
+      position: { my: "center", at: "center", of: "body" },
+      height: "300",
+      width: "500",
+      modal: true,
+      buttons: [
+        {
+          text: btnText,
+          click: function() {
+            if(logs.length === 0) {
+              makeApi('POST', '/runtime/notifications', { ids: notification_ids });
+              $(this).dialog("close");
+              dialog_open = false;
+            }
+            else {
+              show_feedback(logs);
+            }
+          }
+        }
+      ]
+    });
+    dialog_open = true;
+  }
+  $("#ui-id-1").html(log.title);
+  $("#pl_dialog").html(html);
+  $('.ui-dialog').css("top","20%");
+}
 
 /*
   Displays the point leaderboard
