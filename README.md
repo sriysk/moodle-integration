@@ -9,6 +9,14 @@ You can switch the branches to get to each Part. To checkout the blog post head 
 2. [Part 2](https://blog.playlyfe.com/integrating-playlyfe-in-moodle-part-2/)
 3. [Part 3](https://blog.playlyfe.com/integrating-playlyfe-in-moodle-part-3/)
 
+You can see the demo here [moodle playlyfe](moodle-playlyfe.rhcloud.com/login/index.php) and the user login details are,
+
+1. `jack@mailinator.com`  
+2. `john@mailinator.com`  
+3. `doe@mailinator.com`  
+
+and the password is ...... wait for it .... `Test@123` .. please use it wisely.
+
 If you would like to just install the final product then just clone the master repo like this,
 
 `git clone https://github.com/pyros2097/moodle-integration.git`
