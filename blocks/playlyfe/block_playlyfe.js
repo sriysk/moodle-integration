@@ -637,6 +637,7 @@ function show_feedback(logs) {
           click: function() {
             if(logs.length === 0) {
               makeApi('POST', '/runtime/notifications', { ids: notification_ids });
+              notification_ids = [];
               $(this).dialog("close");
               dialog_open = false;
             }
