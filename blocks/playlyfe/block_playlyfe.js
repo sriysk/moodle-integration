@@ -663,7 +663,7 @@ function show_leaderboard(version, leaderboard) {
     var item = leaderboard.data[i];
     players += '<tr><td>' + item.rank + '</td><td>' + item.player.alias + '</td><td>' + item.score + '</td>';
   }
-  $('#pl_leaderboard').append(
+  $('#pl_leaderboard').html(
     '<table class="generaltable">' +
       '<thead>' +
         '<tr>' +
