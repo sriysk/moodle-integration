@@ -10,9 +10,12 @@ class block_playlyfe extends block_base {
   // This is where we are going to integrate our Game using the Playlyfe REST API
   public function get_content() {
     global $USER, $DB;
-    $pl = block_playlyfe_sdk::get_pl();
     $this->content = new stdClass;
     $this->content->footer = 'Powered by Playlyfe';
+    if($USER->id == 0) {
+      return $this->content;
+    }
+    $pl = block_playlyfe_sdk::get_pl();
     $firewall = array(0, 1, 2, 3); // prevent users who don't have site config permission from accessing these type of blocks
     $isadmin = has_capability('moodle/site:config', context_user::instance($USER->id));
     if(in_array($this->config->type, $firewall) && !$isadmin) {

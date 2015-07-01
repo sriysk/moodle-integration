@@ -5,7 +5,6 @@ $can_modify = has_capability('block/playlyfe:addinstance', context_user::instanc
 $method = $_GET['method'];
 $route = $_GET['route'];
 $query = array();
-$query['player_id'] = $USER->id;
 if(stripos($route, '/design') === 0 && !$can_modify) {
   echo 'You need to be authorized to make this request';
 }
@@ -13,6 +12,9 @@ else if(stripos($route, '/admin') === 0 && !$can_modify) {
   echo 'You need to be authorized to make this request';
 }
 else {
+  if(stripos($route, '/runtime') === 0) {
+    $query['player_id'] = $USER->id;
+  }
   header('Content-Type: application/json');
   try {
     $data = json_decode(file_get_contents('php://input'), false);
