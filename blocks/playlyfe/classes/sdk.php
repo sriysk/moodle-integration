@@ -4,8 +4,8 @@ class block_playlyfe_sdk {
 
   public static function get_pl() {
     return(new Playlyfe(array(
-      'client_id' => "NjJiMWU3MTQtNjRiNy00NzYwLTg4MzktNWEwZjNjZjFkOTgw",
-      'client_secret' => "NjllODcyNTAtY2YzZi00NDE3LWIyYjgtZmJiNTNlN2Y2NWZmYjVlZmIyNTAtMDRmZC0xMWU1LWI0NTMtZTNlNzk5Y2M1OWRk",
+      'client_id' => "ZjBiN2M0MWEtOTdhYi00ZDgwLWI4Y2ItZjkyYjE3MGVjNGRh",
+      'client_secret' => "ZGNmMzU0NjItZWQ0Zi00YjFlLWI2YzQtOTUwZThkZTIzMzJjN2FhMmQxNzAtNjAyNy0xMWU1LTlmYWItMjU0NWY2Mjc2ZmY4",
       'type' => 'client',
       'store' => function($token) {
         set_config('access_token', $token['access_token'], 'playlyfe');
