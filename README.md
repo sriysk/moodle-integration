@@ -5,9 +5,9 @@ Each tutorial part refers to a branch within this git repository.
 
 You can switch the branches to get to each Part. To checkout the blog post head over to [Playlyfe Blog](https://blog.playlyfe.com)
 
-1. [Part 1](https://blog.playlyfe.com/integrating-playlyfe-in-moodle-part-1/)
-2. [Part 2](https://blog.playlyfe.com/integrating-playlyfe-in-moodle-part-2/)
-3. [Part 3](https://blog.playlyfe.com/integrating-playlyfe-in-moodle-part-3/)
+1. [Part 1](https://blog.playlyfe.com/gamify-moodle-laying-the-base/)
+2. [Part 2](https://blog.playlyfe.com/gamify-moodle-adding-dynamic-metrics/)
+3. [Part 3](https://blog.playlyfe.com/gamify-moodle-players-and-rules/)
 
 You can see the demo here [moodle playlyfe](https://moodle-playlyfe.rhcloud.com/login/index.php) and the user login details are,
 
